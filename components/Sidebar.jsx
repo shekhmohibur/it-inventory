@@ -119,22 +119,22 @@ const menuGroups = [
       {
         name: "Providers",
         icon: FiMail,
-        href: "/mail-inventory/providers",
+        href: "/inventory/mail/providers",
       },
       {
         name: "Mail Accounts",
         icon: FiMail,
-        href: "/mail-inventory/accounts",
+        href: "/inventory/mail/accounts",
       },
       {
         name: "Assignments",
         icon: FiUsers,
-        href: "/mail-inventory/assignments",
+        href: "/inventory/mail/assignments",
       },
       {
         name: "Audit Logs",
         icon: FiDatabase,
-        href: "/mail-inventory/audit-logs",
+        href: "/inventory/mail/audit-logs",
       },
     ],
   },
