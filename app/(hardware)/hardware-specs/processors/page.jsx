@@ -593,8 +593,7 @@ export default function ProcessorsPage() {
 
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500">
               <FiTrash2 size={17} />
-            </div>
-
+            </div> 
             <h3 className="mt-4 text-[15px] font-bold text-slate-900">
               Delete Processor?
             </h3>
