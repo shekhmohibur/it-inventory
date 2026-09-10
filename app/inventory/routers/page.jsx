@@ -1,5 +1,7 @@
+"use client";
 import InventoryTable from "@/components/InventoryTable";
-import { FiRouter } from "react-icons/fi";
+import { BsFillRouterFill } from "react-icons/bs";
+import { FiCopy } from "react-icons/fi";
 
 const routers = [
   {
@@ -75,7 +77,7 @@ export default function RouterInventoryPage() {
       config={{
         title: "Router Inventory",
         storageKey: "router_inventory",
-        icon: FiRouter,
+        icon: BsFillRouterFill,
         initialData: routers,
 
         filters: [
