@@ -6,6 +6,7 @@ const SidebarContext = createContext({
   isDesktopCollapsed: false,
   isMobileOpen: false,
   toggleSidebar: () => {},
+  setIsDesktopCollapsed: () => {},
   closeMobileSidebar: () => {},
 });
 
@@ -13,7 +14,7 @@ export function SidebarProvider({ children }) {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Close mobile sidebar on screen resize to desktop
+  // Close mobile sidebar on resize to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -40,6 +41,7 @@ export function SidebarProvider({ children }) {
         isDesktopCollapsed,
         isMobileOpen,
         toggleSidebar,
+        setIsDesktopCollapsed,
         closeMobileSidebar,
       }}
     >
