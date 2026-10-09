@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/SidebarContext";
+import Image from "next/image";
 
 const NAV_ITEMS = [
   {
@@ -30,6 +31,8 @@ const NAV_ITEMS = [
     subItems: [
       { title: "General", href: "/settings/general" },
       { title: "Organization", href: "/settings/organization" },
+      { title: "Users", href: "/settings/users" },
+      { title: "User-roles", href: "/settings/user-roles" },
     ],
   },
   {
@@ -66,7 +69,8 @@ const NAV_ITEMS = [
   },
 ];
 
-export function Sidebar({ user }) {
+export function Sidebar({ user, org }) {
+  
   const pathname = usePathname();
   const {
     isDesktopCollapsed,
@@ -74,6 +78,9 @@ export function Sidebar({ user }) {
     isMobileOpen,
     closeMobileSidebar,
   } = useSidebar();
+  const shortName = org?.shortName !== "notfound" ? org?.shortName : "notfound";
+  const businessName = org?.businessName !== "notfound" ? org?.businessName : "notfound";
+  const logo = org?.mainLogo !== "notfound" ? org?.mainLogo : "notfound";
   const [openMenus, setOpenMenus] = useState({});
   const displayRole = user?.role || "TRAINEE (IT)";
   const handleParentClick = (title) => {
@@ -108,26 +115,43 @@ export function Sidebar({ user }) {
             ? "translate-x-0 shadow-2xl"
             : "-translate-x-full lg:translate-x-0",
           // Desktop width
-          isDesktopCollapsed ? "lg:w-[68px]" : "lg:w-60",
+          isDesktopCollapsed ? "lg:w-17" : "lg:w-60",
           "w-60"
         )}
       >
         {/* Brand Header */}
-        <div className="h-16 flex items-center px-4.5 gap-3 border-b border-[#221e4a] shrink-0 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-fuchsia-500 flex items-center justify-center text-white shadow-sm shrink-0">
-            <Layers className="w-4 h-4 stroke-[2.2]" />
-          </div>
-          <span
-            className={cn(
-              "font-bold tracking-wider text-xs text-white uppercase whitespace-nowrap transition-all duration-200",
-              isDesktopCollapsed
-                ? "lg:opacity-0 lg:w-0 lg:pointer-events-none"
-                : "opacity-100"
-            )}
-          >
-            KKL INVENTORY
-          </span>
+        <div className="p-5 border-b border-slate-800/80 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-md bg-gray-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0 overflow-hidden ">
+          // ❌ Problematic check (passes on empty string ""):
+{logo !== "notfound" ? (
+  <Image src={logo} alt={shortName} width={36} height={36} className="p-0.5" unoptimized />
+) : (
+  <Layers className="w-5  h-5 text-indigo-400" />
+)}
+
+// ✅ Robust check:
+{Boolean(logo) && logo !== "notfound" && logo.trim() !== "" ? (
+  <Image
+    src={logo}
+    alt={shortName !== "notfound" ? shortName : "Logo"}
+    width={36}
+    height={36}
+    className="object-contain"
+    unoptimized
+  />
+) : (
+  <Layers className="w-5 h-5 text-indigo-400" />
+)}
         </div>
+        <div className="min-w-0">
+          <div className="font-bold text-sm text-white tracking-tight truncate">
+            {shortName}
+          </div>
+          <div className="text-[10px] text-slate-400 truncate">
+            {businessName}
+          </div>
+        </div>
+      </div>
 
         {/* Navigation List */}
         <nav className="flex-1 px-2.5 py-4 space-y-1 overflow-y-auto overflow-x-hidden">

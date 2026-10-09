@@ -3,106 +3,91 @@
 import { revalidatePath } from "next/cache";
 import { PrismaClient } from "@prisma/client";
 import { getSession } from "@/lib/auth";
+import fs from "fs/promises";
+import path from "path";
 
 const prisma = global.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
-// 1. UPDATE COMPANY PROFILE
-export async function updateCompanyAction(formData) {
-  try {
-    const session = await getSession();
-    if (!session?.id || session.role !== "ADMIN") {
-      return { error: "Administrative privileges are required to edit organization details." };
-    }
-
-    const companyId = formData.get("companyId");
-    const name = formData.get("name")?.trim();
-    const code = formData.get("code")?.trim().toUpperCase();
-    const address = formData.get("address")?.trim();
-    const contactEmail = formData.get("contactEmail")?.trim().toLowerCase();
-    const contactPhone = formData.get("contactPhone")?.trim();
-
-    if (!name || !code) {
-      return { error: "Company name and abbreviation code are required." };
-    }
-
-    await prisma.company.upsert({
-      where: { id: companyId || "default-company" },
-      update: { name, code, address, contactEmail, contactPhone },
-      create: {
-        id: companyId || "default-company",
-        name,
-        code,
-        address,
-        contactEmail,
-        contactPhone,
-      },
-    });
-
-    revalidatePath("/settings/organization");
-    revalidatePath("/");
-    return { success: true };
-  } catch (err) {
-    console.error("Update company error:", err);
-    return { error: "Failed to save company details." };
+async function saveFile(file, prefix) {
+  if (!file || typeof file.arrayBuffer !== "function" || file.size === 0) {
+    return null;
   }
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  const uploadDir = path.join(process.cwd(), "public", "uploads", "branding");
+  await fs.mkdir(uploadDir, { recursive: true });
+
+  const ext = path.extname(file.name) || ".png";
+  const filename = `${prefix}-${Date.now()}${ext}`;
+  const filePath = path.join(uploadDir, filename);
+
+  await fs.writeFile(filePath, buffer);
+  return `/uploads/branding/${filename}`;
 }
 
-// 2. ADD DEPARTMENT
-export async function addDepartmentAction(formData) {
+export async function saveOrganizationAction(formData) {
   try {
     const session = await getSession();
-    if (!session?.id || session.role !== "ADMIN") {
-      return { error: "Administrative privileges required." };
+    if (!session?.id) {
+      return { error: "Unauthorized session." };
     }
 
-    const companyId = formData.get("companyId") || "default-company";
-    const name = formData.get("name")?.trim();
-    const code = formData.get("code")?.trim().toUpperCase();
-    const rawSections = formData.get("sections")?.trim();
+    // Media uploads
+    const mainLogoFile = formData.get("mainLogo");
+    const faviconFile = formData.get("favicon");
+    const ogImageFile = formData.get("ogImage");
+    const signatureFile = formData.get("officialSignature");
 
-    if (!name) {
-      return { error: "Department name is mandatory." };
-    }
+    const mainLogoUrl = await saveFile(mainLogoFile, "logo");
+    const faviconUrl = await saveFile(faviconFile, "favicon");
+    const ogImageUrl = await saveFile(ogImageFile, "og");
+    const signatureUrl = await saveFile(signatureFile, "signature");
 
-    // Split sections by comma
-    const sections = rawSections
-      ? rawSections.split(",").map((s) => s.trim()).filter(Boolean)
-      : [];
+    const data = {
+      businessName: formData.get("businessName")?.trim() || null,
+      shortName: formData.get("shortName")?.trim() || null,
+      emailAddress: formData.get("emailAddress")?.trim() || null,
+      phoneNumber: formData.get("phoneNumber")?.trim() || null,
+      physicalAddress: formData.get("physicalAddress")?.trim() || null,
+      workingHours: formData.get("workingHours")?.trim() || null,
+      footerDescription: formData.get("footerDescription")?.trim() || null,
+      systemTimezone: formData.get("systemTimezone")?.trim() || null,
 
-    await prisma.department.create({
-      data: {
-        name,
-        code,
-        companyId,
-        sections,
-      },
+      globalMetaTitle: formData.get("globalMetaTitle")?.trim() || null,
+      metaKeywords: formData.get("metaKeywords")?.trim() || null,
+      metaDescription: formData.get("metaDescription")?.trim() || null,
+      robotsTxt: formData.get("robotsTxt")?.trim() || null,
+
+      facebookUrl: formData.get("facebookUrl")?.trim() || null,
+      instagramUrl: formData.get("instagramUrl")?.trim() || null,
+      twitterUrl: formData.get("twitterUrl")?.trim() || null,
+      youtubeUrl: formData.get("youtubeUrl")?.trim() || null,
+
+      primaryColor: formData.get("primaryColor")?.trim() || null,
+      secondaryColor: formData.get("secondaryColor")?.trim() || null,
+      accentColor: formData.get("accentColor")?.trim() || null,
+
+      ga4Id: formData.get("ga4Id")?.trim() || null,
+      fbPixelId: formData.get("fbPixelId")?.trim() || null,
+
+      ...(mainLogoUrl && { mainLogo: mainLogoUrl }),
+      ...(faviconUrl && { favicon: faviconUrl }),
+      ...(ogImageUrl && { ogImage: ogImageUrl }),
+      ...(signatureUrl && { officialSignature: signatureUrl }),
+    };
+
+    await prisma.organization.upsert({
+      where: { id: "default-org" },
+      update: data,
+      create: { id: "default-org", ...data },
     });
 
     revalidatePath("/settings/organization");
     return { success: true };
   } catch (err) {
-    console.error("Add department error:", err);
-    return { error: "Department already exists or could not be created." };
-  }
-}
-
-// 3. DELETE DEPARTMENT
-export async function deleteDepartmentAction(departmentId) {
-  try {
-    const session = await getSession();
-    if (!session?.id || session.role !== "ADMIN") {
-      return { error: "Unauthorized operation." };
-    }
-
-    await prisma.department.delete({
-      where: { id: departmentId },
-    });
-
-    revalidatePath("/settings/organization");
-    return { success: true };
-  } catch (err) {
-    console.error("Delete department error:", err);
-    return { error: "Failed to remove department." };
+    console.error("Save organization error:", err);
+    return { error: err?.message || "Failed to update organization details." };
   }
 }

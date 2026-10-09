@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Monitor,
   Laptop,
@@ -16,7 +16,7 @@ import {
   Printer as PrintIcon,
 } from "lucide-react";
 
-// 1. Metric Cards Dataset
+// Metric Cards Dataset
 const ASSET_CARDS = [
   {
     title: "COMPUTERS",
@@ -121,11 +121,10 @@ const ASSET_CARDS = [
   },
 ];
 
-// 2. Summary Table Allocation Dataset
+// Summary Table Allocation Dataset
 const INVENTORY_ROWS = [
   {
     id: 1,
-    company: "KAIZER KNITWEARS LTD.",
     department: "Cutting",
     sl: 1,
     section: "Cutting Staff",
@@ -141,7 +140,6 @@ const INVENTORY_ROWS = [
   },
   {
     id: 2,
-    company: "",
     department: "Finishing",
     sl: 2,
     section: "Finishing Staff",
@@ -157,7 +155,6 @@ const INVENTORY_ROWS = [
   },
   {
     id: 3,
-    company: "",
     department: "Sewing",
     sl: 3,
     section: "Floor QC & Sup.",
@@ -173,7 +170,6 @@ const INVENTORY_ROWS = [
   },
   {
     id: 4,
-    company: "",
     department: "Merchandising",
     sl: 4,
     section: "Brand Office",
@@ -189,7 +185,6 @@ const INVENTORY_ROWS = [
   },
   {
     id: 5,
-    company: "",
     department: "Accounts & Finance",
     sl: 5,
     section: "Accounts Executive",
@@ -206,6 +201,37 @@ const INVENTORY_ROWS = [
 ];
 
 export default function DashboardPage() {
+  const [orgData, setOrgData] = useState({
+    businessName: "notfound",
+    shortName: "notfound",
+  });
+
+  useEffect(() => {
+    async function loadOrg() {
+      try {
+        const res = await fetch("/api/organization");
+        if (res.ok) {
+          const data = await res.json();
+          setOrgData({
+            businessName: data?.businessName || "notfound",
+            shortName: data?.shortName || "notfound",
+          });
+        }
+      } catch {
+        setOrgData({
+          businessName: "notfound",
+          shortName: "notfound",
+        });
+      }
+    }
+    loadOrg();
+  }, []);
+
+  const companyDisplayName =
+    orgData.businessName !== "notfound" ? orgData.businessName : "notfound";
+  const shortDisplayName =
+    orgData.shortName !== "notfound" ? orgData.shortName : "notfound";
+
   const handlePrint = () => {
     window.print();
   };
@@ -228,7 +254,7 @@ export default function DashboardPage() {
     ];
 
     const rows = INVENTORY_ROWS.map((row) => [
-      row.company || "KAIZER KNITWEARS LTD.",
+      companyDisplayName,
       row.department,
       row.sl,
       row.section,
@@ -252,7 +278,7 @@ export default function DashboardPage() {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `KKL_IT_Inventory_Report_${new Date().toISOString().split("T")[0]}.csv`
+      `${shortDisplayName}_Inventory_Report_${new Date().toISOString().split("T")[0]}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -290,7 +316,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6 print:space-y-4 print:p-0">
+    <div className="space-y-6 print:space-y-4 print:p-0 font-sans">
       {/* 1. Header & Actions Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
@@ -299,7 +325,7 @@ export default function DashboardPage() {
           </h1>
           <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            Real-time status of all hardware across the organization.
+            Real-time status of all hardware across {companyDisplayName}.
           </p>
         </div>
 
@@ -377,7 +403,6 @@ export default function DashboardPage() {
 
       {/* 3. IT Inventory Summary Table */}
       <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden print:border print:shadow-none">
-        {/* Table Top Banner */}
         <div className="p-4 sm:px-6 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -398,7 +423,6 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Responsive Table Scroll Container */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -426,9 +450,8 @@ export default function DashboardPage() {
                   key={row.id}
                   className="hover:bg-slate-50/70 transition-colors"
                 >
-                  {/* Rowspan or Company Title */}
                   <td className="py-3 px-4 sm:px-6 font-bold text-slate-900 text-xs">
-                    {index === 0 ? "KAIZER KNITWEARS LTD." : ""}
+                    {index === 0 ? companyDisplayName : ""}
                   </td>
                   <td className="py-3 px-3 text-slate-800">{row.department}</td>
                   <td className="py-3 px-2 text-center text-slate-400 font-mono text-[11px]">

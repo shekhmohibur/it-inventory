@@ -1,5 +1,4 @@
 import React from "react";
-import { getSession } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 import { OrganizationEditor } from "@/components/OrganizationEditor";
 
@@ -13,43 +12,62 @@ export const metadata = {
 };
 
 export default async function OrganizationPage() {
-  const session = await getSession();
+  let org = null;
 
-  // Fetch or fallback company record
-  let company = await prisma.company.findFirst();
-  if (!company) {
-    company = {
-      id: "default-company",
-      name: "KAIZER KNITWEARS LTD.",
-      code: "KKL",
-      address: "Plot #14, Sector 7, Export Processing Zone, Gazipur, Bangladesh",
-      contactEmail: "it.admin@kaizerknit.com",
-      contactPhone: "+880 2-9832101",
-    };
+  try {
+    if (prisma?.organization) {
+      org = await prisma.organization.findFirst({
+        where: { id: "default-org" },
+      });
+    }
+  } catch (error) {
+    console.error("Failed to fetch organization settings:", error);
   }
 
-  // Fetch company departments
-  const departments = await prisma.department.findMany({
-    where: { companyId: company.id },
-    orderBy: { name: "asc" },
-  });
+  const initialData = {
+    businessName: org?.businessName || "notfound",
+    shortName: org?.shortName || "notfound",
+    emailAddress: org?.emailAddress || "notfound",
+    phoneNumber: org?.phoneNumber || "notfound",
+    physicalAddress: org?.physicalAddress || "notfound",
+    workingHours: org?.workingHours || "notfound",
+    footerDescription: org?.footerDescription || "notfound",
+    systemTimezone: org?.systemTimezone || "notfound",
+
+    globalMetaTitle: org?.globalMetaTitle || "notfound",
+    metaKeywords: org?.metaKeywords || "notfound",
+    metaDescription: org?.metaDescription || "notfound",
+    robotsTxt: org?.robotsTxt || "notfound",
+
+    facebookUrl: org?.facebookUrl || "notfound",
+    instagramUrl: org?.instagramUrl || "notfound",
+    twitterUrl: org?.twitterUrl || "notfound",
+    youtubeUrl: org?.youtubeUrl || "notfound",
+
+    mainLogo: org?.mainLogo || "notfound",
+    favicon: org?.favicon || "notfound",
+    ogImage: org?.ogImage || "notfound",
+    officialSignature: org?.officialSignature || "notfound",
+    primaryColor: org?.primaryColor || "notfound",
+    secondaryColor: org?.secondaryColor || "notfound",
+    accentColor: org?.accentColor || "notfound",
+
+    ga4Id: org?.ga4Id || "notfound",
+    fbPixelId: org?.fbPixelId || "notfound",
+  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-900 tracking-tight">
           Organization Settings
         </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Configure corporate entity records, factory branches, and operational departments.
+          Manage general workspace identity, media branding, metadata, and analytics.
         </p>
       </div>
 
-      <OrganizationEditor
-        company={company}
-        departments={departments}
-        userRole={session?.role || "TRAINEE"}
-      />
+      <OrganizationEditor initialData={initialData} />
     </div>
   );
 }

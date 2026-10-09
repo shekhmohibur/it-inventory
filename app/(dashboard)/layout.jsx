@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth";
+import { getOrganizationData } from "@/lib/getOrg";
 import { PrismaClient } from "@prisma/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Topbar } from "@/components/Topbar";
@@ -7,10 +8,12 @@ import { SidebarProvider } from "@/context/SidebarContext";
 const prisma = global.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({ children }) {
+  // 1. Fetch user session
   const session = await getSession();
 
-  // Query database so uploaded avatar updates appear across the entire dashboard
   let dbUser = null;
   if (session?.id || session?.email) {
     try {
@@ -23,15 +26,15 @@ export default async function DashboardLayout({ children }) {
         },
       });
     } catch (e) {
-      console.error(e);
+      console.error("Failed to query user in layout:", e);
     }
   }
 
   const currentUser = {
-    fullName: dbUser?.fullName || session?.fullName || "User",
-    email: dbUser?.email || session?.email || "",
-    role: dbUser?.role ? `${dbUser.role} (IT)` : "TRAINEE (IT)",
-    image: dbUser?.image || null, // <--- Add this line
+    fullName: dbUser?.fullName || session?.fullName || "notfound",
+    email: dbUser?.email || session?.email || "notfound",
+    role: dbUser?.role || session?.role || "TRAINEE",
+    image: dbUser?.image || null,
     initials: (dbUser?.fullName || session?.fullName || "IT")
       .split(" ")
       .filter(Boolean)
@@ -41,12 +44,17 @@ export default async function DashboardLayout({ children }) {
       .toUpperCase(),
   };
 
+  // 2. Fetch Organization Data
+  const org = await getOrganizationData();
+
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-800">
-        <Sidebar user={currentUser} />
+        {/* Pass both user and org */}
+        <Sidebar user={currentUser} org={org} />
+
         <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-          <Topbar user={currentUser} />
+          <Topbar user={currentUser} org={org} />
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
             {children}
           </main>

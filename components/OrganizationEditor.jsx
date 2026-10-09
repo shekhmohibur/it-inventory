@@ -1,332 +1,424 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  Tag,
-  Plus,
-  Trash2,
   Save,
   Check,
   AlertCircle,
   Loader2,
-  ShieldAlert,
-  Layers,
+  Globe,
+  Upload,
 } from "lucide-react";
-import {
-  updateCompanyAction,
-  addDepartmentAction,
-  deleteDepartmentAction,
-} from "@/app/actions/organization";
+import { saveOrganizationAction } from "@/app/actions/organization";
 
-export function OrganizationEditor({ company, departments, userRole }) {
-  const isAdmin = userRole === "ADMIN";
-
-  // Form states
+export function OrganizationEditor({ initialData }) {
   const [loading, setLoading] = useState(false);
-  const [deptLoading, setDeptLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleCompanySubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isAdmin) return;
-
     setLoading(true);
     setSuccessMsg("");
     setErrorMsg("");
 
-    const formData = new FormData(e.currentTarget);
-    const res = await updateCompanyAction(formData);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const res = await saveOrganizationAction(formData);
 
-    setLoading(false);
-    if (res?.error) {
-      setErrorMsg(res.error);
-    } else {
-      setSuccessMsg("Organization details saved successfully.");
-      setTimeout(() => setSuccessMsg(""), 4000);
+      if (res?.error) {
+        setErrorMsg(String(res.error));
+      } else {
+        setSuccessMsg("Organization configuration saved successfully.");
+        setTimeout(() => setSuccessMsg(""), 4000);
+      }
+    } catch (err) {
+      setErrorMsg(err?.message || "Failed to submit configuration.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleAddDept = async (e) => {
-    e.preventDefault();
-    if (!isAdmin) return;
-
-    setDeptLoading(true);
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const res = await addDepartmentAction(formData);
-
-    setDeptLoading(false);
-    if (res?.error) {
-      setErrorMsg(res.error);
-    } else {
-      form.reset();
-      setSuccessMsg("Department added successfully.");
-      setTimeout(() => setSuccessMsg(""), 4000);
-    }
-  };
-
-  const handleDeleteDept = async (id) => {
-    if (!isAdmin) return;
-    if (!confirm("Are you sure you want to remove this department?")) return;
-
-    const res = await deleteDepartmentAction(id);
-    if (res?.error) setErrorMsg(res.error);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Messages */}
-      {successMsg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="space-y-6 text-xs text-slate-700">
+      {/* Alert Messages */}
+      {Boolean(successMsg) && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl flex items-center gap-2">
           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{successMsg}</span>
+          <span>{String(successMsg)}</span>
         </div>
       )}
-      {errorMsg && (
-        <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+      {Boolean(errorMsg) && (
+        <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-          <span>{errorMsg}</span>
+          <span>{String(errorMsg)}</span>
         </div>
       )}
 
-      {!isAdmin && (
-        <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl flex items-center gap-2 font-medium">
-          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>Read-only Mode: Only IT Administrators can modify organizational parameters.</span>
-        </div>
-      )}
-
-      {/* 1. Primary Company Identity */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
-            <Building2 className="w-4 h-4" />
-          </div>
-          <div>
+      {/* Main Grid: Left Column & Right Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* LEFT COLUMN: 2 Cols Wide */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* 1. General Information Card */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
             <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-              Company Identity & Headquarters
+              General Information
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Official corporate details registered on hardware allocations and audit reports.
-            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Business Name</label>
+                <input
+                  type="text"
+                  name="businessName"
+                  defaultValue={initialData?.businessName !== "notfound" ? initialData.businessName : ""}
+                  placeholder="Kaizer Knitwears Ltd."
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Short Name</label>
+                <input
+                  type="text"
+                  name="shortName"
+                  defaultValue={initialData?.shortName !== "notfound" ? initialData.shortName : ""}
+                  placeholder="KKL INVENTORY"
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white uppercase"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Email Address</label>
+                <input
+                  type="email"
+                  name="emailAddress"
+                  defaultValue={initialData?.emailAddress !== "notfound" ? initialData.emailAddress : ""}
+                  placeholder="it@kaizerknitwear.com"
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Phone Number</label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  defaultValue={initialData?.phoneNumber !== "notfound" ? initialData.phoneNumber : ""}
+                  placeholder="01799925246"
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700">Physical Address</label>
+              <textarea
+                name="physicalAddress"
+                rows={2}
+                defaultValue={initialData?.physicalAddress !== "notfound" ? initialData.physicalAddress : ""}
+                placeholder="Nayapara, Kashimpur, Gazipur-1346, Bangladesh"
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white resize-y"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700">Working Hours</label>
+              <textarea
+                name="workingHours"
+                rows={2}
+                defaultValue={initialData?.workingHours !== "notfound" ? initialData.workingHours : ""}
+                placeholder="24/7"
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white resize-y"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700">Footer Description</label>
+              <textarea
+                name="footerDescription"
+                rows={2}
+                defaultValue={initialData?.footerDescription !== "notfound" ? initialData.footerDescription : ""}
+                placeholder="© 2026 All Rights Reserved."
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white resize-y"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700">System Timezone</label>
+              <input
+                type="text"
+                name="systemTimezone"
+                defaultValue={initialData?.systemTimezone !== "notfound" ? initialData.systemTimezone : "UTC"}
+                placeholder="UTC"
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+              />
+            </div>
+          </div>
+
+          {/* 2. SEO & Metadata Card */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+              SEO & Metadata
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Global Meta Title</label>
+                <input
+                  type="text"
+                  name="globalMetaTitle"
+                  defaultValue={initialData?.globalMetaTitle !== "notfound" ? initialData.globalMetaTitle : ""}
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Meta Keywords</label>
+                <input
+                  type="text"
+                  name="metaKeywords"
+                  defaultValue={initialData?.metaKeywords !== "notfound" ? initialData.metaKeywords : ""}
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700">Meta Description</label>
+              <textarea
+                name="metaDescription"
+                rows={2}
+                defaultValue={initialData?.metaDescription !== "notfound" ? initialData.metaDescription : ""}
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white resize-y"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700">Robots.txt Content</label>
+              <textarea
+                name="robotsTxt"
+                rows={3}
+                defaultValue={initialData?.robotsTxt !== "notfound" ? initialData.robotsTxt : "User-agent: *\nDisallow: /"}
+                placeholder="Configure rules for search engine bots."
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl p-3 text-slate-800 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white resize-y"
+              />
+            </div>
+          </div>
+
+          {/* 3. Social Media Links Card */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+              Social Media Links
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Facebook URL</label>
+                <input
+                  type="url"
+                  name="facebookUrl"
+                  defaultValue={initialData?.facebookUrl !== "notfound" ? initialData.facebookUrl : ""}
+                  placeholder="https://facebook.com/..."
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Instagram URL</label>
+                <input
+                  type="url"
+                  name="instagramUrl"
+                  defaultValue={initialData?.instagramUrl !== "notfound" ? initialData.instagramUrl : ""}
+                  placeholder="https://instagram.com/..."
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">Twitter/X URL</label>
+                <input
+                  type="url"
+                  name="twitterUrl"
+                  defaultValue={initialData?.twitterUrl !== "notfound" ? initialData.twitterUrl : ""}
+                  placeholder="https://x.com/..."
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700">YouTube URL</label>
+                <input
+                  type="url"
+                  name="youtubeUrl"
+                  defaultValue={initialData?.youtubeUrl !== "notfound" ? initialData.youtubeUrl : ""}
+                  placeholder="https://youtube.com/..."
+                  className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleCompanySubmit} className="p-5 sm:p-6 space-y-4">
-          <input type="hidden" name="companyId" value={company?.id || "default-company"} />
+        {/* RIGHT COLUMN: 1 Col Wide */}
+        <div className="space-y-6">
+          {/* Branding & Media Card */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+              Branding & Media
+            </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            {/* Main Logo */}
+            <div className="space-y-2">
+              <span className="font-semibold text-slate-700 block">Main Logo</span>
+              <div className="w-16 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
+                {initialData?.mainLogo !== "notfound" ? (
+                  <Image
+                    src={initialData.mainLogo}
+                    alt="Logo"
+                    width={48}
+                    height={36}
+                    className="object-contain"
+                    unoptimized
+                  />
+                ) : (
+                  <Globe className="w-5 h-5 text-slate-400" />
+                )}
+              </div>
+              <input
+                type="file"
+                name="mainLogo"
+                accept="image/png, image/jpeg, image/jpg"
+                className="block w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+              />
+              <span className="text-[10px] text-slate-400 block">
+                Allowed file types: png, jpg, jpeg. Max 2MB.
+              </span>
+            </div>
+
+            {/* Favicon */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <span className="font-semibold text-slate-700 block">Favicon</span>
+              <input
+                type="file"
+                name="favicon"
+                accept="image/*"
+                className="block w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+              />
+              <span className="text-[10px] text-slate-400 block">
+                Best size: 32x32px or 16x16px.
+              </span>
+            </div>
+
+            {/* OG Image */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <span className="font-semibold text-slate-700 block">OG Image (Social Share)</span>
+              <input
+                type="file"
+                name="ogImage"
+                accept="image/*"
+                className="block w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+              />
+            </div>
+
+            {/* Official Signature */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <span className="font-semibold text-slate-700 block">Official Signature</span>
+              <input
+                type="file"
+                name="officialSignature"
+                accept="image/*"
+                className="block w-full text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+              />
+            </div>
+
+            {/* Theme Colors */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <span className="font-semibold text-slate-700 block">Theme Colors</span>
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-slate-500">
+                <div>
+                  <span className="block mb-1">Primary</span>
+                  <input
+                    type="color"
+                    name="primaryColor"
+                    defaultValue={initialData?.primaryColor !== "notfound" ? initialData.primaryColor : "#5046e5"}
+                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-200"
+                  />
+                </div>
+                <div>
+                  <span className="block mb-1">Secondary</span>
+                  <input
+                    type="color"
+                    name="secondaryColor"
+                    defaultValue={initialData?.secondaryColor !== "notfound" ? initialData.secondaryColor : "#161338"}
+                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-200"
+                  />
+                </div>
+                <div>
+                  <span className="block mb-1">Accent</span>
+                  <input
+                    type="color"
+                    name="accentColor"
+                    defaultValue={initialData?.accentColor !== "notfound" ? initialData.accentColor : "#f59e0b"}
+                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-200"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Analytics Card */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+              Analytics
+            </h2>
+
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700">Official Legal Entity Name</label>
+              <label className="font-semibold text-slate-700">GA4 ID</label>
               <input
                 type="text"
-                name="name"
-                required
-                disabled={!isAdmin}
-                defaultValue={company?.name || "KAIZER KNITWEARS LTD."}
-                placeholder="e.g. KAIZER KNITWEARS LTD."
-                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white disabled:bg-slate-100 disabled:cursor-not-allowed font-medium"
+                name="ga4Id"
+                defaultValue={initialData?.ga4Id !== "notfound" ? initialData.ga4Id : ""}
+                placeholder="Ex: G-XXXXXXXXXX"
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white font-mono"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700">Organization Abbreviation Code</label>
+              <label className="font-semibold text-slate-700">Facebook Pixel ID</label>
               <input
                 type="text"
-                name="code"
-                required
-                disabled={!isAdmin}
-                defaultValue={company?.code || "KKL"}
-                placeholder="e.g. KKL"
-                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white disabled:bg-slate-100 disabled:cursor-not-allowed font-medium font-mono uppercase"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                Administrative Contact Email
-              </label>
-              <input
-                type="email"
-                name="contactEmail"
-                disabled={!isAdmin}
-                defaultValue={company?.contactEmail || "it.admin@kaizerknit.com"}
-                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white disabled:bg-slate-100 disabled:cursor-not-allowed font-medium"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-slate-400" />
-                Contact / PABX Extension
-              </label>
-              <input
-                type="text"
-                name="contactPhone"
-                disabled={!isAdmin}
-                defaultValue={company?.contactPhone || "+880 2-9832101"}
-                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white disabled:bg-slate-100 disabled:cursor-not-allowed font-medium"
-              />
-            </div>
-
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="font-semibold text-slate-700 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                Headquarters / Factory Premises Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                disabled={!isAdmin}
-                defaultValue={company?.address || "Plot #14, Sector 7, Export Processing Zone, Gazipur, Bangladesh"}
-                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white disabled:bg-slate-100 disabled:cursor-not-allowed font-medium"
+                name="fbPixelId"
+                defaultValue={initialData?.fbPixelId !== "notfound" ? initialData.fbPixelId : ""}
+                placeholder="Ex: 123456789012345"
+                className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white font-mono"
               />
             </div>
           </div>
 
-          {isAdmin && (
-            <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-70"
-              >
-                {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                <span>Save Company Details</span>
-              </button>
-            </div>
-          )}
-        </form>
-      </div>
-
-      {/* 2. Registered Departments & Sections */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 shrink-0">
-              <Layers className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-                Departments & Sections
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Configured organizational units available for employee signup and asset assignment.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Add Department Form (Admin Only) */}
-        {isAdmin && (
-          <form onSubmit={handleAddDept} className="p-4 sm:p-6 bg-slate-50/70 border-b border-slate-100">
-            <input type="hidden" name="companyId" value={company?.id || "default-company"} />
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-              <div className="sm:col-span-1">
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  placeholder="Department Name (e.g. Cutting)"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
-                />
-              </div>
-              <div className="sm:col-span-1">
-                <input
-                  type="text"
-                  name="code"
-                  placeholder="Code (e.g. CUT)"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono uppercase"
-                />
-              </div>
-              <div className="sm:col-span-1">
-                <input
-                  type="text"
-                  name="sections"
-                  placeholder="Sections (comma-separated)"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-              <div className="sm:col-span-1">
-                <button
-                  type="submit"
-                  disabled={deptLoading}
-                  className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold shadow-xs transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Dept</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        )}
-
-        {/* Departments List Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200/70 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="py-3 px-6">Department Name</th>
-                <th className="py-3 px-4">Code</th>
-                <th className="py-3 px-4">Operational Sections</th>
-                {isAdmin && <th className="py-3 px-6 text-right">Actions</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {departments.length === 0 ? (
-                <tr>
-                  <td colSpan={isAdmin ? 4 : 3} className="py-6 text-center text-slate-400">
-                    No departments added yet.
-                  </td>
-                </tr>
+          {/* Submit Button */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-70"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving Configuration...</span>
+                </>
               ) : (
-                departments.map((dept) => (
-                  <tr key={dept.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-3 px-6 font-semibold text-slate-900">{dept.name}</td>
-                    <td className="py-3 px-4 font-mono text-slate-500 font-medium">
-                      {dept.code || "—"}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex flex-wrap gap-1">
-                        {dept.sections?.length > 0 ? (
-                          dept.sections.map((sec, sIdx) => (
-                            <span
-                              key={sIdx}
-                              className="px-2 py-0.5 rounded-md text-[10px] bg-slate-100 text-slate-600 border border-slate-200 font-medium"
-                            >
-                              {sec}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-slate-400 text-[11px]">General</span>
-                        )}
-                      </div>
-                    </td>
-                    {isAdmin && (
-                      <td className="py-3 px-6 text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteDept(dept.id)}
-                          className="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Remove Department"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Organization</span>
+                </>
               )}
-            </tbody>
-          </table>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

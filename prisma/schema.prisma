@@ -8,6 +8,16 @@ enum Role {
   MANAGER
   ADMIN
 }
+model RolePermission {
+  id          String   @id @default(cuid())
+  roleName    String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  isSystem    Boolean  @default(false)
+  permissions Json     @default("[]") // String array of granted keys, e.g. ["dashboard:view", "users:create"]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 enum AccountStatus {
   PENDING
@@ -25,37 +35,51 @@ model User {
   designation  String?
   image        String?
   passwordHash String
-  role         Role          @default(TRAINEE)
+  role         String   @default("TRAINEE")
   status       AccountStatus @default(PENDING)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
-model Company {
-  id          String       @id @default(cuid())
-  name        String       @unique // e.g. "KAIZER KNITWEARS LTD."
-  code        String       @unique // e.g. "KKL"
-  address     String?
-  contactEmail String?
-  contactPhone String?
-  departments Department[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+model Organization {
+  id                String   @id @default("default-org")
+  // General Information
+  businessName      String?
+  shortName         String?
+  emailAddress      String?
+  phoneNumber       String?
+  physicalAddress   String?
+  workingHours      String?
+  footerDescription String?
+  systemTimezone    String?
+
+  // SEO & Metadata
+  globalMetaTitle   String?
+  metaKeywords      String?
+  metaDescription   String?
+  robotsTxt         String?
+
+  // Social Links
+  facebookUrl       String?
+  instagramUrl      String?
+  twitterUrl        String?
+  youtubeUrl        String?
+
+  // Branding & Media
+  mainLogo          String?
+  favicon           String?
+  ogImage           String?
+  officialSignature String?
+  primaryColor      String?
+  secondaryColor    String?
+  accentColor       String?
+
+  // Analytics
+  ga4Id             String?
+  fbPixelId         String?
+
+  updatedAt         DateTime @updatedAt
 }
-
-model Department {
-  id          String    @id @default(cuid())
-  name        String    // e.g. "Cutting", "Sewing", "Finishing", "IT"
-  code        String?   // e.g. "CUT", "SEW", "IT"
-  companyId   String
-  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  sections    String[]  // Array of section titles, e.g. ["Cutting Staff", "Fabric QC"]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@unique([name, companyId])
-}
-
 
 datasource db {
   provider = "postgresql"
