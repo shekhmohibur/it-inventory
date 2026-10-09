@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-    href: "/dashboard",
+    href: "/",
   },
   {
     title: "Settings",
@@ -29,7 +29,7 @@ const NAV_ITEMS = [
     href: "/settings",
     subItems: [
       { title: "General", href: "/settings/general" },
-      { title: "Organization", href: "/settings/org" },
+      { title: "Organization", href: "/settings/organization" },
     ],
   },
   {
@@ -66,7 +66,7 @@ const NAV_ITEMS = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ user }) {
   const pathname = usePathname();
   const {
     isDesktopCollapsed,
@@ -75,7 +75,7 @@ export function Sidebar() {
     closeMobileSidebar,
   } = useSidebar();
   const [openMenus, setOpenMenus] = useState({});
-
+  const displayRole = user?.role || "TRAINEE (IT)";
   const handleParentClick = (title) => {
     // If collapsed, expand the entire sidebar first and open this specific dropdown
     if (isDesktopCollapsed) {
@@ -252,36 +252,17 @@ export function Sidebar() {
         </nav>
 
         {/* Footer: Trainee Badge & Sign Out */}
-        <div className="p-4 border-t border-[#221e4a] shrink-0">
-          <div
-            className={cn(
-              "text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5",
-              isDesktopCollapsed ? "lg:text-center lg:text-[9px]" : ""
-            )}
-          >
-            {isDesktopCollapsed ? "IT" : "TRAINEE (IT)"}
-          </div>
-          <button
-            type="button"
-            title={isDesktopCollapsed ? "Sign Out" : undefined}
-            className={cn(
-              "flex items-center text-rose-400 hover:text-rose-300 transition-colors font-medium text-xs w-full cursor-pointer",
-              isDesktopCollapsed
-                ? "lg:justify-center gap-0"
-                : "gap-2 justify-start"
-            )}
-          >
-            <LogOut className="w-3.5 h-3.5 shrink-0" />
-            <span
-              className={cn(
-                "whitespace-nowrap",
-                isDesktopCollapsed ? "lg:hidden" : "inline"
-              )}
-            >
-              Sign Out
-            </span>
-          </button>
-        </div>
+            <div className="p-4 border-t border-[#221e4a] shrink-0">
+                <div
+                  className={`text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5 ${
+                    isDesktopCollapsed ? "lg:text-center lg:text-[9px]" : ""
+                  }`}
+                >
+                  {isDesktopCollapsed ? "IT" : displayRole}
+                </div>
+                
+                {/* Logout form/button */}
+              </div>
       </aside>
     </>
   );

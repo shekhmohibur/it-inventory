@@ -11,8 +11,33 @@ export default function Error({ error, reset }) {
     }
   }, [error]);
 
+  // Safely extract and coerce error message to a pure string
+  const getErrorMessage = (err) => {
+    if (!err) return "An unexpected error occurred.";
+    if (typeof err === "string") return err;
+    if (typeof err.message === "string") return err.message;
+    if (typeof err.error === "string") return err.error;
+    if (typeof err.message === "object") {
+      try {
+        return JSON.stringify(err.message);
+      } catch {
+        return "Internal system error.";
+      }
+    }
+    if (typeof err === "object") {
+      try {
+        return JSON.stringify(err);
+      } catch {
+        return "Internal system error.";
+      }
+    }
+    return String(err);
+  };
+
+  const errorMessage = getErrorMessage(error);
+
   return (
-    <div className="min-h-[75vh] flex items-center justify-center p-4">
+    <div className="min-h-[75vh] flex items-center justify-center p-4 font-sans select-none">
       <div className="w-full max-w-lg bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 sm:p-8 text-center animate-in fade-in zoom-in-95 duration-200">
         <div className="mx-auto w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 mb-5 shadow-xs">
           <AlertTriangle className="w-7 h-7 stroke-[2]" />
@@ -31,13 +56,13 @@ export default function Error({ error, reset }) {
           An unexpected error occurred while loading this view. You can try refreshing the section or return to the main dashboard.
         </p>
 
-        {error?.message && (
+        {Boolean(errorMessage) && (
           <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3 text-left mb-6 overflow-hidden">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Error Details
             </span>
-            <p className="text-xs font-mono text-slate-700 truncate">
-              {error.message}
+            <p className="text-xs font-mono text-slate-700 truncate break-all">
+              {errorMessage}
             </p>
           </div>
         )}

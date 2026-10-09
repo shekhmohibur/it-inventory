@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Monitor,
@@ -10,110 +12,121 @@ import {
   Printer,
   Copy,
   Fingerprint,
-  Share2,
+  Download,
   Printer as PrintIcon,
 } from "lucide-react";
 
-// Stat card data matching the dashboard layout
-const STAT_CARDS = [
+// 1. Metric Cards Dataset
+const ASSET_CARDS = [
   {
-    label: "COMPUTERS",
-    count: "110",
+    title: "COMPUTERS",
+    total: "110",
     icon: Monitor,
-    iconBg: "bg-blue-50 text-blue-600",
+    iconColor: "text-blue-500",
+    iconBg: "bg-blue-50",
     badges: [
-      { text: "Running 108", type: "running" },
-      { text: "Scrapped 02", type: "scrapped" },
+      { label: "Running 108", type: "success" },
+      { label: "Scrapped 02", type: "danger" },
     ],
   },
   {
-    label: "LAPTOPS",
-    count: "58",
+    title: "LAPTOPS",
+    total: "58",
     icon: Laptop,
-    iconBg: "bg-amber-50 text-amber-600",
+    iconColor: "text-amber-500",
+    iconBg: "bg-amber-50",
     badges: [
-      { text: "Running 56", type: "running" },
-      { text: "Scrapped 02", type: "scrapped" },
+      { label: "Running 56", type: "success" },
+      { label: "Scrapped 02", type: "danger" },
     ],
   },
   {
-    label: "DESKTOPS",
-    count: "51",
+    title: "DESKTOPS",
+    total: "51",
     icon: Tv,
-    iconBg: "bg-sky-50 text-sky-600",
-    badges: [{ text: "Running 51", type: "running" }],
+    iconColor: "text-cyan-500",
+    iconBg: "bg-cyan-50",
+    badges: [{ label: "Running 51", type: "success" }],
   },
   {
-    label: "SERVERS",
-    count: "01",
+    title: "SERVERS",
+    total: "01",
     icon: Server,
-    iconBg: "bg-slate-100 text-slate-700",
-    badges: [{ text: "Running 01", type: "running" }],
+    iconColor: "text-slate-600",
+    iconBg: "bg-slate-100",
+    badges: [{ label: "Running 01", type: "success" }],
   },
   {
-    label: "UPS UNITS",
-    count: "06",
+    title: "UPS UNITS",
+    total: "06",
     icon: Zap,
-    iconBg: "bg-amber-50 text-amber-600",
+    iconColor: "text-amber-600",
+    iconBg: "bg-amber-50",
     badges: [
-      { text: "Running 02", type: "running" },
-      { text: "Scrapped 04", type: "scrapped" },
+      { label: "Running 02", type: "success" },
+      { label: "Scrapped 04", type: "danger" },
     ],
   },
   {
-    label: "ROUTERS",
-    count: "28",
+    title: "ROUTERS",
+    total: "28",
     icon: Wifi,
-    iconBg: "bg-cyan-50 text-cyan-600",
+    iconColor: "text-cyan-600",
+    iconBg: "bg-cyan-50",
     badges: [
-      { text: "Running 21", type: "running" },
-      { text: "Scrapped 06", type: "scrapped" },
-      { text: "In Stock 01", type: "stock" },
+      { label: "Running 21", type: "success" },
+      { label: "Scrapped 06", type: "danger" },
+      { label: "In Stock 01", type: "info" },
     ],
   },
   {
-    label: "ETHERNETS",
-    count: "38",
+    title: "ETHERNETS",
+    total: "38",
     icon: Network,
-    iconBg: "bg-emerald-50 text-emerald-600",
-    badges: [{ text: "Running 38", type: "running" }],
+    iconColor: "text-emerald-600",
+    iconBg: "bg-emerald-50",
+    badges: [{ label: "Running 38", type: "success" }],
   },
   {
-    label: "PRINTERS",
-    count: "32",
+    title: "PRINTERS",
+    total: "32",
     icon: Printer,
-    iconBg: "bg-fuchsia-100 text-fuchsia-600",
+    iconColor: "text-purple-600",
+    iconBg: "bg-purple-50",
     badges: [
-      { text: "In Stock 03", type: "stock" },
-      { text: "Service Required 01", type: "service" },
-      { text: "Running 22", type: "running" },
-      { text: "Scrapped 06", type: "scrapped" },
+      { label: "In Stock 03", type: "info" },
+      { label: "Service Required 01", type: "secondary" },
+      { label: "Running 22", type: "success" },
+      { label: "Scrapped 06", type: "danger" },
     ],
   },
   {
-    label: "SCANNERS",
-    count: "05",
+    title: "SCANNERS",
+    total: "05",
     icon: Copy,
-    iconBg: "bg-rose-50 text-rose-500",
-    badges: [{ text: "Running 05", type: "running" }],
+    iconColor: "text-rose-500",
+    iconBg: "bg-rose-50",
+    badges: [{ label: "Running 05", type: "success" }],
   },
   {
-    label: "PUNCH MACHINES",
-    count: "31",
+    title: "PUNCH MACHINES",
+    total: "31",
     icon: Fingerprint,
-    iconBg: "bg-purple-50 text-purple-600",
+    iconColor: "text-fuchsia-600",
+    iconBg: "bg-fuchsia-50",
     badges: [
-      { text: "Running 18", type: "running" },
-      { text: "Scrapped 13", type: "scrapped" },
+      { label: "Running 18", type: "success" },
+      { label: "Scrapped 13", type: "danger" },
     ],
   },
 ];
 
-// Sample report table rows
-const TABLE_ROWS = [
+// 2. Summary Table Allocation Dataset
+const INVENTORY_ROWS = [
   {
+    id: 1,
     company: "KAIZER KNITWEARS LTD.",
-    dept: "Cutting",
+    department: "Cutting",
     sl: 1,
     section: "Cutting Staff",
     totalComp: 4,
@@ -125,12 +138,11 @@ const TABLE_ROWS = [
     printer: 2,
     scanner: "-",
     ethernet: 6,
-    punch: 1,
-    remarks: "",
   },
   {
+    id: 2,
     company: "",
-    dept: "Finishing",
+    department: "Finishing",
     sl: 2,
     section: "Finishing Staff",
     totalComp: 2,
@@ -142,183 +154,151 @@ const TABLE_ROWS = [
     printer: 1,
     scanner: "-",
     ethernet: 3,
-    punch: 4,
-    remarks: "",
   },
   {
+    id: 3,
     company: "",
-    dept: "Knitting & Dyeing",
+    department: "Sewing",
     sl: 3,
-    section: "Dyeing",
-    totalComp: 7,
-    laptop: 5,
-    desktop: 2,
-    server: "-",
-    monitor: "-",
-    router: "-",
-    printer: "-",
-    scanner: "-",
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
-  },
-  {
-    company: "",
-    dept: "",
-    sl: 4,
-    section: "Knitting",
-    totalComp: 3,
-    laptop: 1,
-    desktop: 2,
-    server: "-",
-    monitor: "-",
-    router: "-",
-    printer: "-",
-    scanner: "-",
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
-  },
-  {
-    isSubtotal: true,
-    title: "KNITTING & DYEING TOTAL",
-    totalComp: 10,
-    laptop: 6,
-    desktop: 4,
-    server: "-",
-    monitor: "-",
-    router: "-",
-    printer: "-",
-    scanner: "-",
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
-  },
-  {
-    company: "",
-    dept: "Maintenance",
-    sl: 5,
-    section: "Maintenance (Electrical)",
-    totalComp: 1,
+    section: "Floor QC & Sup.",
+    totalComp: 6,
     laptop: "-",
-    desktop: 1,
-    server: "-",
-    monitor: "-",
-    router: 1,
-    printer: 1,
-    scanner: "-",
-    ethernet: 1,
-    punch: "-",
-    remarks: "",
-  },
-  {
-    company: "",
-    dept: "Merchandising & Planning",
-    sl: 6,
-    section: "IE",
-    totalComp: 4,
-    laptop: 3,
-    desktop: 1,
-    server: "-",
-    monitor: "-",
-    router: 1,
-    printer: 1,
-    scanner: "-",
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
-  },
-  {
-    company: "",
-    dept: "",
-    sl: 7,
-    section: "Merchandising",
-    totalComp: 27,
-    laptop: 23,
-    desktop: 4,
-    server: "-",
-    monitor: 2,
-    router: 3,
-    printer: 4,
-    scanner: 1,
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
-  },
-  {
-    company: "",
-    dept: "",
-    sl: 8,
-    section: "Planning",
-    totalComp: 5,
-    laptop: 4,
-    desktop: 1,
-    server: "-",
-    monitor: "-",
-    router: "-",
-    printer: "-",
-    scanner: "-",
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
-  },
-  {
-    isSubtotal: true,
-    title: "MERCHANDISING & PLANNING TOTAL",
-    totalComp: 36,
-    laptop: 30,
     desktop: 6,
     server: "-",
-    monitor: 2,
-    router: 4,
-    printer: 5,
+    monitor: 6,
+    router: 1,
+    printer: 1,
+    scanner: "-",
+    ethernet: 8,
+  },
+  {
+    id: 4,
+    company: "",
+    department: "Merchandising",
+    sl: 4,
+    section: "Brand Office",
+    totalComp: 12,
+    laptop: 4,
+    desktop: 8,
+    server: "-",
+    monitor: 12,
+    router: 2,
+    printer: 3,
     scanner: 1,
-    ethernet: "-",
-    punch: "-",
-    remarks: "",
+    ethernet: 14,
+  },
+  {
+    id: 5,
+    company: "",
+    department: "Accounts & Finance",
+    sl: 5,
+    section: "Accounts Executive",
+    totalComp: 8,
+    laptop: 2,
+    desktop: 6,
+    server: "-",
+    monitor: 8,
+    router: 1,
+    printer: 2,
+    scanner: 1,
+    ethernet: 10,
   },
 ];
 
-// Badge styling helper
-function Badge({ text, type }) {
-  let style = "bg-slate-100 text-slate-700 border-slate-200";
-  let dot = "bg-slate-400";
-
-  if (type === "running") {
-    style = "bg-emerald-50 text-emerald-700 border-emerald-200";
-    dot = "bg-emerald-500";
-  } else if (type === "scrapped") {
-    style = "bg-rose-50 text-rose-700 border-rose-200";
-    dot = "bg-rose-500";
-  } else if (type === "stock") {
-    style = "bg-blue-50 text-blue-700 border-blue-200";
-    dot = "bg-blue-500";
-  } else if (type === "service") {
-    style = "bg-slate-100 text-slate-700 border-slate-300";
-    dot = "bg-slate-600";
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${style}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {text}
-    </span>
-  );
-}
-
 export default function DashboardPage() {
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportCSV = () => {
+    const headers = [
+      "Company",
+      "Department",
+      "SL",
+      "Section",
+      "Total Comp",
+      "Laptop",
+      "Desktop",
+      "Server",
+      "Monitor",
+      "Router",
+      "Printer",
+      "Scanner",
+      "Ethernet",
+    ];
+
+    const rows = INVENTORY_ROWS.map((row) => [
+      row.company || "KAIZER KNITWEARS LTD.",
+      row.department,
+      row.sl,
+      row.section,
+      row.totalComp,
+      row.laptop,
+      row.desktop,
+      row.server,
+      row.monitor,
+      row.router,
+      row.printer,
+      row.scanner,
+      row.ethernet,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `KKL_IT_Inventory_Report_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const getBadgeClass = (type) => {
+    switch (type) {
+      case "success":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200/70";
+      case "danger":
+        return "bg-rose-50 text-rose-700 border-rose-200/70";
+      case "info":
+        return "bg-blue-50 text-blue-700 border-blue-200/70";
+      case "secondary":
+        return "bg-slate-100 text-slate-700 border-slate-200";
+      default:
+        return "bg-slate-50 text-slate-600 border-slate-200";
+    }
+  };
+
+  const getDotClass = (type) => {
+    switch (type) {
+      case "success":
+        return "bg-emerald-500";
+      case "danger":
+        return "bg-rose-500";
+      case "info":
+        return "bg-blue-500";
+      case "secondary":
+        return "bg-slate-500";
+      default:
+        return "bg-slate-400";
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      {/* 1. Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 print:space-y-4 print:p-0">
+      {/* 1. Header & Actions Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
             IT Asset Overview
           </h1>
-          <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
             Real-time status of all hardware across the organization.
           </p>
         </div>
@@ -326,156 +306,164 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2.5">
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm transition"
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            <Share2 className="w-3.5 h-3.5 text-slate-500" />
+            <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Export Data</span>
           </button>
+
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-lg shadow-sm transition"
+            onClick={handlePrint}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            <PrintIcon className="w-3.5 h-3.5 text-white" />
+            <PrintIcon className="w-3.5 h-3.5" />
             <span>Print Summary</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Top Metric Cards (5 per row) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-        {STAT_CARDS.map((card) => (
-          <div
-            key={card.label}
-            className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between min-h-[140px]"
-          >
-            <div className="flex items-start justify-between">
+      {/* 2. 10 Asset Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 print:grid-cols-5 print:gap-2">
+        {ASSET_CARDS.map((card, idx) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={idx}
+              className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all print:border print:shadow-none"
+            >
               <div>
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                  {card.label}
-                </span>
-                <span className="text-2xl font-extrabold text-slate-900 mt-1 block">
-                  {card.count}
-                </span>
-              </div>
-              <div
-                className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${card.iconBg}`}
-              >
-                <card.icon className="w-5 h-5 stroke-[2]" />
-              </div>
-            </div>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                      {card.title}
+                    </span>
+                    <div className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
+                      {card.total}
+                    </div>
+                  </div>
 
-            <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
-              {card.badges.map((b, idx) => (
-                <Badge key={idx} text={b.text} type={b.type} />
-              ))}
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${card.iconBg}`}
+                  >
+                    <Icon className={`w-4 h-4 ${card.iconColor}`} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Badges */}
+              <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
+                {card.badges.map((badge, bIdx) => (
+                  <span
+                    key={bIdx}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getBadgeClass(
+                      badge.type
+                    )}`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${getDotClass(
+                        badge.type
+                      )}`}
+                    />
+                    {badge.label}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* 3. Asset Allocation Data Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        {/* Table Title Bar */}
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+      {/* 3. IT Inventory Summary Table */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden print:border print:shadow-none">
+        {/* Table Top Banner */}
+        <div className="p-4 sm:px-6 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
               IT INVENTORY SUMMARY
             </h2>
-            <p className="text-[11px] text-slate-400 font-medium">
+            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
               OFFICIAL ASSET ALLOCATION REPORT
             </p>
           </div>
+
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm transition"
+            onClick={handlePrint}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold transition-colors cursor-pointer print:hidden"
           >
-            <PrintIcon className="w-3 h-3 text-white" />
+            <PrintIcon className="w-3.5 h-3.5" />
             <span>PRINT</span>
           </button>
         </div>
 
-        {/* Responsive Table Container */}
+        {/* Responsive Table Scroll Container */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50/80 text-[11px] font-semibold text-slate-600 border-b border-slate-200">
-                <th className="py-2.5 px-3">COMPANY</th>
-                <th className="py-2.5 px-3">DEPARTMENT</th>
-                <th className="py-2.5 px-2 text-center">SL</th>
-                <th className="py-2.5 px-3">SECTION</th>
-                <th className="py-2.5 px-3 text-center text-indigo-700 font-bold bg-indigo-50/50">
+              <tr className="bg-slate-50/80 border-b border-slate-200/70 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th className="py-3 px-4 sm:px-6">COMPANY</th>
+                <th className="py-3 px-3">DEPARTMENT</th>
+                <th className="py-3 px-2 text-center">SL</th>
+                <th className="py-3 px-3">SECTION</th>
+                <th className="py-3 px-3 text-center bg-indigo-50/60 text-indigo-700 font-bold border-x border-indigo-100/50">
                   TOTAL COMP
                 </th>
-                <th className="py-2.5 px-2 text-center">LAPTOP</th>
-                <th className="py-2.5 px-2 text-center">DESKTOP</th>
-                <th className="py-2.5 px-2 text-center">SERVER</th>
-                <th className="py-2.5 px-2 text-center">MONITOR</th>
-                <th className="py-2.5 px-2 text-center">ROUTER</th>
-                <th className="py-2.5 px-2 text-center">PRINTER</th>
-                <th className="py-2.5 px-2 text-center">SCANNER</th>
-                <th className="py-2.5 px-2 text-center">ETHERNET</th>
-                <th className="py-2.5 px-2 text-center">PUNCH MACHINE</th>
-                <th className="py-2.5 px-3 text-center">REMARKS</th>
+                <th className="py-3 px-2 text-center">LAPTOP</th>
+                <th className="py-3 px-2 text-center">DESKTOP</th>
+                <th className="py-3 px-2 text-center">SERVER</th>
+                <th className="py-3 px-2 text-center">MONITOR</th>
+                <th className="py-3 px-2 text-center">ROUTER</th>
+                <th className="py-3 px-2 text-center">PRINTER</th>
+                <th className="py-3 px-2 text-center">SCANNER</th>
+                <th className="py-3 px-3 text-center">ETHERNET</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {TABLE_ROWS.map((row, idx) => {
-                if (row.isSubtotal) {
-                  return (
-                    <tr
-                      key={idx}
-                      className="bg-indigo-50/40 font-bold text-[11px] text-slate-900 border-y border-indigo-100"
-                    >
-                      <td colSpan={4} className="py-2 px-3 text-right uppercase tracking-wider text-indigo-950">
-                        {row.title}
-                      </td>
-                      <td className="py-2 px-3 text-center text-indigo-700 font-extrabold bg-indigo-100/50">
-                        {row.totalComp}
-                      </td>
-                      <td className="py-2 px-2 text-center">{row.laptop}</td>
-                      <td className="py-2 px-2 text-center">{row.desktop}</td>
-                      <td className="py-2 px-2 text-center">{row.server}</td>
-                      <td className="py-2 px-2 text-center">{row.monitor}</td>
-                      <td className="py-2 px-2 text-center">{row.router}</td>
-                      <td className="py-2 px-2 text-center">{row.printer}</td>
-                      <td className="py-2 px-2 text-center">{row.scanner}</td>
-                      <td className="py-2 px-2 text-center">{row.ethernet}</td>
-                      <td className="py-2 px-2 text-center">{row.punch}</td>
-                      <td className="py-2 px-3"></td>
-                    </tr>
-                  );
-                }
-
-                return (
-                  <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-2.5 px-3 font-semibold text-slate-900">
-                      {row.company}
-                    </td>
-                    <td className="py-2.5 px-3 font-medium text-slate-800">
-                      {row.dept}
-                    </td>
-                    <td className="py-2.5 px-2 text-center text-slate-400">
-                      {row.sl}
-                    </td>
-                    <td className="py-2.5 px-3 font-medium text-slate-700">
-                      {row.section}
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-bold text-indigo-600 bg-indigo-50/30">
-                      {row.totalComp}
-                    </td>
-                    <td className="py-2.5 px-2 text-center">{row.laptop}</td>
-                    <td className="py-2.5 px-2 text-center">{row.desktop}</td>
-                    <td className="py-2.5 px-2 text-center">{row.server}</td>
-                    <td className="py-2.5 px-2 text-center">{row.monitor}</td>
-                    <td className="py-2.5 px-2 text-center">{row.router}</td>
-                    <td className="py-2.5 px-2 text-center">{row.printer}</td>
-                    <td className="py-2.5 px-2 text-center">{row.scanner}</td>
-                    <td className="py-2.5 px-2 text-center">{row.ethernet}</td>
-                    <td className="py-2.5 px-2 text-center">{row.punch}</td>
-                    <td className="py-2.5 px-3 text-slate-400">{row.remarks}</td>
-                  </tr>
-                );
-              })}
+            <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+              {INVENTORY_ROWS.map((row, index) => (
+                <tr
+                  key={row.id}
+                  className="hover:bg-slate-50/70 transition-colors"
+                >
+                  {/* Rowspan or Company Title */}
+                  <td className="py-3 px-4 sm:px-6 font-bold text-slate-900 text-xs">
+                    {index === 0 ? "KAIZER KNITWEARS LTD." : ""}
+                  </td>
+                  <td className="py-3 px-3 text-slate-800">{row.department}</td>
+                  <td className="py-3 px-2 text-center text-slate-400 font-mono text-[11px]">
+                    {row.sl}
+                  </td>
+                  <td className="py-3 px-3 text-slate-800">{row.section}</td>
+                  <td className="py-3 px-3 text-center font-bold text-indigo-600 bg-indigo-50/30 border-x border-indigo-100/50">
+                    {row.totalComp}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-600">
+                    {row.laptop}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-600">
+                    {row.desktop}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-400">
+                    {row.server}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-600">
+                    {row.monitor}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-600">
+                    {row.router}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-600">
+                    {row.printer}
+                  </td>
+                  <td className="py-3 px-2 text-center text-slate-400">
+                    {row.scanner}
+                  </td>
+                  <td className="py-3 px-3 text-center text-slate-600">
+                    {row.ethernet}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

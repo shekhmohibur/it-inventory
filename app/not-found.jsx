@@ -14,8 +14,8 @@ const inter = Inter({
 export default function NotFound() {
   return (
     <html lang="en" className={inter.className}>
-      <body className="m-0 p-0 min-h-screen bg-[#f8fafc] text-slate-900 antialiased font-sans flex items-center justify-center p-4 font-sans">
-        <main className="w-full max-w-md bg-white border border-slate-200/90 rounded-xl shadow-xs p-8 text-center">
+      <body className="m-0  min-h-screen bg-[#f8fafc] text-slate-900 antialiased  flex items-center justify-center p-4 font-sans">
+        <main className="w-full m-auto mt-50 max-w-md bg-white border border-slate-200/90 rounded-xl shadow-xs p-8 text-center">
           {/* Subtle Status Pill */}
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 mb-4 border border-slate-200">
             <span>404</span>

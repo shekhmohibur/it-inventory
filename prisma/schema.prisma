@@ -2,14 +2,62 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+enum Role {
+  USER
+  TRAINEE
+  MANAGER
+  ADMIN
+}
+
+enum AccountStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  id           String        @id @default(cuid())
+  cardNumber   String?       @unique // Card / Employee Punch ID Number
+  fullName     String
+  email        String        @unique
+  phone        String?
+  department   String?
+  designation  String?
+  image        String?
+  passwordHash String
+  role         Role          @default(TRAINEE)
+  status       AccountStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Company {
+  id          String       @id @default(cuid())
+  name        String       @unique // e.g. "KAIZER KNITWEARS LTD."
+  code        String       @unique // e.g. "KKL"
+  address     String?
+  contactEmail String?
+  contactPhone String?
+  departments Department[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Department {
+  id          String    @id @default(cuid())
+  name        String    // e.g. "Cutting", "Sewing", "Finishing", "IT"
+  code        String?   // e.g. "CUT", "SEW", "IT"
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sections    String[]  // Array of section titles, e.g. ["Cutting Staff", "Fabric QC"]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([name, companyId])
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
