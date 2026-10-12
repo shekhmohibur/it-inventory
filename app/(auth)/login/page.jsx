@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, Layers, ArrowRight, AlertCircle } from "lucide-react";
 import { loginAction } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -84,6 +85,7 @@ export default function LoginPage() {
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
+            
           </div>
 
           <div className="flex items-center justify-between text-xs pt-0.5">
@@ -99,14 +101,19 @@ export default function LoginPage() {
             </a>
           </div>
 
-          <button
+          {/* <button
             type="submit"
             disabled={loading}
             className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-70"
           >
             <span>{loading ? "Signing in..." : "Sign in"}</span>
             {!loading && <ArrowRight className="w-3.5 h-3.5" />}
-          </button>
+          </button> */}
+          <Button type="submit" loading={loading}
+          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-70" >
+  <span>{loading ? "Signing in..." : "Sign in"}</span>
+  {!loading && <ArrowRight className="w-3.5 h-3.5" />}
+</Button>
         </form>
 
         <div className="text-center text-xs text-slate-500 mt-6 pt-4 border-t border-slate-100">

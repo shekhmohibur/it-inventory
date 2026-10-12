@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@tailwind utilities;
 
 @layer base {
   *,
@@ -45,4 +46,41 @@
     padding: 6px 8px !important;
     font-size: 10px !important;
   }
+}
+:root {
+  /* Default fallbacks if database value is 'notfound' */
+  --brand-primary: #5046e5;
+  --brand-secondary: #161338;
+  --brand-accent: #f59e0b;
+}
+
+/* Optional helper utility classes */
+.bg-brand-primary {
+  background-color: var(--brand-primary);
+}
+.text-brand-primary {
+  color: var(--brand-primary);
+}
+.border-brand-primary {
+  border-color: var(--brand-primary);
+}
+
+.bg-brand-secondary {
+  background-color: var(--brand-secondary);
+}
+.text-brand-secondary {
+  color: var(--brand-secondary);
+}
+.border-brand-secondary {
+  border-color: var(--brand-secondary);
+}
+
+.bg-brand-accent {
+  background-color: var(--brand-accent);
+}
+.text-brand-accent {
+  color: var(--brand-accent);
+}
+.border-brand-accent {
+  border-color: var(--brand-accent);
 }

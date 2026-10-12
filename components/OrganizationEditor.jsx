@@ -300,6 +300,20 @@ export function OrganizationEditor({ initialData }) {
             {/* Favicon */}
             <div className="space-y-2 pt-2 border-t border-slate-100">
               <span className="font-semibold text-slate-700 block">Favicon</span>
+              <div className="w-12 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
+                {initialData?.favicon !== "notfound" ? (
+                  <Image
+                    src={initialData?.favicon}
+                    alt="Favicon"
+                    width={40}
+                    height={32}
+                    className="object-contain"
+                    unoptimized
+                  />
+                ) : (
+                  <Globe className="w-5 h-5 text-slate-400" />
+                )}
+              </div>
               <input
                 type="file"
                 name="favicon"

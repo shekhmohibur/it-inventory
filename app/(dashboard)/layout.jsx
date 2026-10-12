@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Topbar } from "@/components/Topbar";
 import { SidebarProvider } from "@/context/SidebarContext";
+import { getLicenseStatus } from "@/lib/getLicense";
 
 const prisma = global.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
 export default async function DashboardLayout({ children }) {
   // 1. Fetch user session
   const session = await getSession();
-
+  const licenseInfo = await getLicenseStatus();
   let dbUser = null;
   if (session?.id || session?.email) {
     try {
@@ -54,7 +55,7 @@ export default async function DashboardLayout({ children }) {
         <Sidebar user={currentUser} org={org} />
 
         <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-          <Topbar user={currentUser} org={org} />
+          <Topbar user={currentUser} org={org} licenseInfo={licenseInfo}/>
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
             {children}
           </main>

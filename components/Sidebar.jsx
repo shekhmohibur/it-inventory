@@ -33,6 +33,7 @@ const NAV_ITEMS = [
       { title: "Organization", href: "/settings/organization" },
       { title: "Users", href: "/settings/users" },
       { title: "User-roles", href: "/settings/user-roles" },
+      { title: "License", href: "/settings/license" },
     ],
   },
   {
@@ -40,7 +41,7 @@ const NAV_ITEMS = [
     icon: Users,
     href: "/master-data",
     subItems: [
-      { title: "Companies", href: "/master-data/companies" },
+      { title: "Company", href: "/master-data/company" },
       { title: "Departments", href: "/master-data/departments" },
     ],
   },
@@ -118,6 +119,7 @@ export function Sidebar({ user, org }) {
           isDesktopCollapsed ? "lg:w-17" : "lg:w-60",
           "w-60"
         )}
+        style={{ backgroundColor: "var(--brand-secondary)" }}
       >
         {/* Brand Header */}
         <div className="p-5 border-b border-slate-800/80 flex items-center gap-3">

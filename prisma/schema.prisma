@@ -73,12 +73,58 @@ model Organization {
   primaryColor      String?
   secondaryColor    String?
   accentColor       String?
+  
 
   // Analytics
   ga4Id             String?
   fbPixelId         String?
 
   updatedAt         DateTime @updatedAt
+}
+
+// Master Data model
+model Company {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  shortName   String?
+  address     String?
+  logo        String?
+  departments Department[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Department {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sections    Section[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([name, companyId])
+}
+
+model Section {
+  id           String     @id @default(cuid())
+  name         String
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// System License
+model SystemLicense {
+  id                 String    @id @default("default-license")
+  licenseName        String?   @default("Enterprise Workspace License")
+  planType           String?   @default("MONTHLY CLOUD SUBSCRIPTION")
+  noticeDate         DateTime?
+  expirationDate     DateTime?
+  enforceRestrictions Boolean   @default(true)
+  updatedAt          DateTime  @updatedAt
 }
 
 datasource db {

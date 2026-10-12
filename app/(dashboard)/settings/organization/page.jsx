@@ -23,6 +23,7 @@ export default async function OrganizationPage() {
   } catch (error) {
     console.error("Failed to fetch organization settings:", error);
   }
+console.log(org);
 
   const initialData = {
     businessName: org?.businessName || "notfound",
