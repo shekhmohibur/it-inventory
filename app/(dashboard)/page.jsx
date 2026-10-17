@@ -15,6 +15,7 @@ import {
   Download,
   Printer as PrintIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 // Metric Cards Dataset
 const ASSET_CARDS = [
@@ -413,14 +414,15 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold transition-colors cursor-pointer print:hidden"
-          >
-            <PrintIcon className="w-3.5 h-3.5" />
-            <span>PRINT</span>
-          </button>
+          <Link
+  href="/dashboard/print"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer select-none"
+>
+  <PrintIcon className="w-3.5 h-3.5" />
+  <span>Print Summary</span>
+</Link>
         </div>
 
         <div className="overflow-x-auto">
