@@ -8,6 +8,7 @@ enum Role {
   MANAGER
   ADMIN
 }
+
 model RolePermission {
   id          String   @id @default(cuid())
   roleName    String   @unique
@@ -35,14 +36,53 @@ model User {
   designation  String?
   image        String?
   passwordHash String
-  role         String   @default("TRAINEE")
+  employees    Employee[]
+  role         String        @default("TRAINEE")
   status       AccountStatus @default(PENDING)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
+model Employee {
+  id            String   @id @default(cuid())
+  employeeCode  String   @unique // e.g. EMP-1001, Punch ID
+  name          String
+  designation   String
+  contactNumber String
+  personalEmail String?
+  officeEmail   String?
+  joiningDate   DateTime
+  status        String   @default("Active") // Active, Inactive
+
+  // Hierarchy relations
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  sectionId    String?
+  section      Section?    @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  // Optional link to system login account if they are also an app user
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+// Devices status
+
+model DeviceStatus {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  color       String   @default("#0010F5")
+  visibility  String   @default("Active") // Active, Inactive
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Organization {
-  id                String   @id @default("default-org")
+  id                String  @id @default("default-org")
   // General Information
   businessName      String?
   shortName         String?
@@ -54,16 +94,16 @@ model Organization {
   systemTimezone    String?
 
   // SEO & Metadata
-  globalMetaTitle   String?
-  metaKeywords      String?
-  metaDescription   String?
-  robotsTxt         String?
+  globalMetaTitle String?
+  metaKeywords    String?
+  metaDescription String?
+  robotsTxt       String?
 
   // Social Links
-  facebookUrl       String?
-  instagramUrl      String?
-  twitterUrl        String?
-  youtubeUrl        String?
+  facebookUrl  String?
+  instagramUrl String?
+  twitterUrl   String?
+  youtubeUrl   String?
 
   // Branding & Media
   mainLogo          String?
@@ -73,13 +113,12 @@ model Organization {
   primaryColor      String?
   secondaryColor    String?
   accentColor       String?
-  
 
   // Analytics
-  ga4Id             String?
-  fbPixelId         String?
+  ga4Id     String?
+  fbPixelId String?
 
-  updatedAt         DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 // Master Data model
@@ -90,19 +129,21 @@ model Company {
   address     String?
   logo        String?
   departments Department[]
+  employees   Employee[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
 model Department {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String?
   companyId   String
-  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   sections    Section[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@unique([name, companyId])
 }
@@ -111,6 +152,7 @@ model Section {
   id           String     @id @default(cuid())
   name         String
   departmentId String
+  employees    Employee[]
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -118,13 +160,13 @@ model Section {
 
 // System License
 model SystemLicense {
-  id                 String    @id @default("default-license")
-  licenseName        String?   @default("Enterprise Workspace License")
-  planType           String?   @default("MONTHLY CLOUD SUBSCRIPTION")
-  noticeDate         DateTime?
-  expirationDate     DateTime?
+  id                  String    @id @default("default-license")
+  licenseName         String?   @default("Enterprise Workspace License")
+  planType            String?   @default("MONTHLY CLOUD SUBSCRIPTION")
+  noticeDate          DateTime?
+  expirationDate      DateTime?
   enforceRestrictions Boolean   @default(true)
-  updatedAt          DateTime  @updatedAt
+  updatedAt           DateTime  @updatedAt
 }
 
 datasource db {

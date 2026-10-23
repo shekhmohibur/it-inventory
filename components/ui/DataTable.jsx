@@ -19,10 +19,15 @@ export function DataTable({
   searchKey = "",
   data = [],
   columns = [],
-  onAdd,
+  // Add / Create props
+  showAdd = true,      // <-- add this
   addLabel = "Add New",
-  printUrl, // Optional override: defaults to `${pathname}/print`
+  createUrl,          // <-- ensure this is present
+  onAdd,
+  // Print props
   showPrint = true,
+  printUrl,
+  onPrint,
   filterComponent,
   emptyMessage = "No matching records found.",
   rowKey = "id",
@@ -109,7 +114,7 @@ export function DataTable({
             {filterComponent && <div className="w-full sm:w-auto shrink-0">{filterComponent}</div>}
           </div>
 
-          {/* Action Buttons: Print Link (New Tab) & Add */}
+          {/* Action Buttons: Print & Add */}
           <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
             {showPrint && (
               <Link
@@ -123,15 +128,28 @@ export function DataTable({
               </Link>
             )}
 
-            {onAdd && (
-              <button
-                type="button"
-                onClick={onAdd}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>{addLabel}</span>
-              </button>
+            {/* Render button if createUrl or onAdd exists */}
+            {showAdd && (createUrl || onAdd) && (
+              createUrl ? (
+                <Link
+                  href={createUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer select-none"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{addLabel}</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onAdd}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer select-none"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{addLabel}</span>
+                </button>
+              )
             )}
           </div>
         </div>

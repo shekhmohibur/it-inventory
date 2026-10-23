@@ -98,57 +98,47 @@ export default async function MasterDataDepartmentsPage({ searchParams }) {
   const canEdit = await hasPermission("org:dept_edit");
   const canDelete = await hasPermission("org:dept_delete");
 
-  // Fetch departments with relations
-  let rawDepartments = [];
-  try {
-    rawDepartments = await prisma.department.findMany({
-      include: {
-        company: true,
-        sections: true,
+  // Fetch departments with relation counts
+let rawDepartments = [];
+try {
+  rawDepartments = await prisma.department.findMany({
+    include: {
+      company: true,
+      sections: true,
+      _count: {
+        select: {
+          employees: true, // Counts directly from Employee table
+        },
       },
-      orderBy: { name: "asc" },
-    });
-  } catch (err) {
-    console.error("Failed to load departments:", err);
-  }
-
-  // Count employees per department
-  let deptEmployeeCounts = {};
-  try {
-    const users = await prisma.user.findMany({
-      select: { department: true },
-    });
-    users.forEach((u) => {
-      if (u.department) {
-        deptEmployeeCounts[u.department] = (deptEmployeeCounts[u.department] || 0) + 1;
-      }
-    });
-  } catch (err) {
-    console.error("Failed to count department employees:", err);
-  }
-
-  const departments = rawDepartments.map((d) => {
-    const companySlug = (d.company?.name || "company")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-\$/g, "");
-    const deptSlug = (d.name || "dept")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-\$/g, "");
-
-    return {
-      id: d.id || "notfound",
-      name: d.name || "notfound",
-      description: d.description || "notfound",
-      reference: `${companySlug}-${deptSlug}`,
-      companyId: d.companyId || "notfound",
-      companyName: d.company?.name || "notfound",
-      companyLogo: d.company?.logo || "notfound",
-      sectionsCount: d.sections?.length || 0,
-      employeesCount: deptEmployeeCounts[d.name] || 0,
-    };
+    },
+    orderBy: { name: "asc" },
   });
+} catch (err) {
+  console.error("Failed to load departments:", err);
+}
+
+const departments = rawDepartments.map((d) => {
+  const companySlug = (d.company?.name || "company")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  const deptSlug = (d.name || "dept")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return {
+    id: d.id || "notfound",
+    name: d.name || "notfound",
+    description: d.description || "notfound",
+    reference: `${companySlug}-${deptSlug}`,
+    companyId: d.companyId || "notfound",
+    companyName: d.company?.name || "notfound",
+    companyLogo: d.company?.logo || "notfound",
+    sectionsCount: d.sections?.length || 0,
+    employeesCount: d._count?.employees || 0, // Accurate live count
+  };
+});
 
   return (
     <div className="space-y-6">

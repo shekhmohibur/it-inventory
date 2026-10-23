@@ -43,6 +43,9 @@ const NAV_ITEMS = [
     subItems: [
       { title: "Company", href: "/master-data/company" },
       { title: "Departments", href: "/master-data/departments" },
+      { title: "Sections", href: "/master-data/sections" },
+      { title: "Employees", href: "/master-data/employees" },
+      { title: "Status", href: "/master-data/status" },
     ],
   },
   {
