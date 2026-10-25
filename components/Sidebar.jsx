@@ -54,7 +54,8 @@ const NAV_ITEMS = [
     href: "/hardware-specs",
     subItems: [
       { title: "Processors", href: "/hardware-specs/cpu" },
-      { title: "RAM & Storage", href: "/hardware-specs/memory" },
+      { title: "RAM", href: "/hardware-specs/ram" },
+      { title: "Brands", href: "/hardware-specs/brands" },
     ],
   },
   {

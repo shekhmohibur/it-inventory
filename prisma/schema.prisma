@@ -148,6 +148,33 @@ model Department {
   @@unique([name, companyId])
 }
 
+
+// hardware specs
+
+model Brand {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  remarks   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, category])
+}
+
+model Ram {
+  id         String   @id @default(cuid())
+  capacity   String   // e.g. "8 GB", "16 GB", "32 GB"
+  ramType    String   // e.g. "DDR3", "DDR4", "DDR5"
+  busSpeed   String   // e.g. "2666 MHz", "3200 MHz", "4800 MHz"
+  formFactor String   @default("DIMM") // "DIMM (Desktop)", "SO-DIMM (Laptop)"
+  remarks    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([capacity, ramType, busSpeed, formFactor])
+}
+
 model Section {
   id           String     @id @default(cuid())
   name         String

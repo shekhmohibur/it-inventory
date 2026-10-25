@@ -34,9 +34,8 @@ const STATUS_FORM_FIELDS = [
   {
     name: "color",
     label: "Status Color (Hex)",
-    type: "text",
+    type: "color", // <-- Changed from "text" to "color"
     required: true,
-    placeholder: "e.g., #0BF207, #EC0909",
   },
   {
     name: "visibility",

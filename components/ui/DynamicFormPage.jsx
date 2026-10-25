@@ -4,7 +4,51 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Home, Check, Loader2, AlertCircle } from "lucide-react";
+// Add this helper component inside components/ui/DynamicFormPage.jsx (outside or above DynamicFormPage)
+function ColorPickerInput({ name, defaultValue = "#0010F5", required = false }) {
+  const [color, setColor] = React.useState(defaultValue || "#0010F5");
 
+  const handleHexChange = (e) => {
+    let val = e.target.value;
+    if (!val.startsWith("#") && val.length > 0) {
+      val = `#${val}`;
+    }
+    setColor(val);
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      {/* Interactive Swatch Preview Button */}
+      <div className="relative w-10 h-10 rounded-xl border border-slate-200 overflow-hidden shadow-xs shrink-0 cursor-pointer hover:border-slate-300 transition">
+        <input
+          type="color"
+          value={color.length === 7 ? color : "#0010F5"}
+          onChange={(e) => setColor(e.target.value)}
+          className="absolute -top-3 -left-3 w-16 h-16 cursor-pointer border-0 p-0 opacity-0"
+          title="Pick color"
+        />
+        <div
+          className="w-full h-full rounded-xl pointer-events-none transition-colors"
+          style={{ backgroundColor: color || "#0010F5" }}
+        />
+      </div>
+
+      {/* Hex Code Input */}
+      <div className="relative flex-1">
+        <input
+          type="text"
+          name={name}
+          required={required}
+          value={color}
+          onChange={handleHexChange}
+          placeholder="#0010F5"
+          maxLength={7}
+          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono uppercase text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-slate-400"
+        />
+      </div>
+    </div>
+  );
+}
 export function DynamicFormPage({
   breadcrumbs = [],
   title = "Form",
@@ -142,6 +186,14 @@ export function DynamicFormPage({
                       className="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-l-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
                     />
                   </div>
+                )}
+                {/* COLOR PICKER WITH LIVE PREVIEW */}
+                {field.type === "color" && (
+                <ColorPickerInput
+                    name={field.name}
+                    defaultValue={defaultValue || "#0010F5"}
+                    required={field.required}
+                />
                 )}
               </div>
             );
