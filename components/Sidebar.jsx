@@ -53,7 +53,7 @@ const NAV_ITEMS = [
     icon: Cpu,
     href: "/hardware-specs",
     subItems: [
-      { title: "Processors", href: "/hardware-specs/cpu" },
+      { title: "Processors", href: "/hardware-specs/processors" },
       { title: "RAM", href: "/hardware-specs/ram" },
       { title: "Brands", href: "/hardware-specs/brands" },
     ],

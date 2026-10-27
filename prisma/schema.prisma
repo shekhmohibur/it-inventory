@@ -69,6 +69,7 @@ model Employee {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 // Devices status
 
 model DeviceStatus {
@@ -148,7 +149,6 @@ model Department {
   @@unique([name, companyId])
 }
 
-
 // hardware specs
 
 model Brand {
@@ -164,15 +164,30 @@ model Brand {
 
 model Ram {
   id         String   @id @default(cuid())
-  capacity   String   // e.g. "8 GB", "16 GB", "32 GB"
-  ramType    String   // e.g. "DDR3", "DDR4", "DDR5"
-  busSpeed   String   // e.g. "2666 MHz", "3200 MHz", "4800 MHz"
+  capacity   String // e.g. "8 GB", "16 GB", "32 GB"
+  ramType    String // e.g. "DDR3", "DDR4", "DDR5"
+  busSpeed   String // e.g. "2666 MHz", "3200 MHz", "4800 MHz"
   formFactor String   @default("DIMM") // "DIMM (Desktop)", "SO-DIMM (Laptop)"
   remarks    String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@unique([capacity, ramType, busSpeed, formFactor])
+}
+
+model Processor {
+  id           String   @id @default(cuid())
+  name         String // e.g. "Core i5-10400", "Ryzen 5 5600G"
+  brand        String // "Intel", "AMD", "Apple", "Other"
+  series       String? // e.g. "Core i5", "Ryzen 5", "Xeon"
+  generation   String? // e.g. "10th Gen", "5000 Series"
+  baseSpeed    String? // e.g. "2.90 GHz"
+  coresThreads String? // e.g. "6 Cores / 12 Threads"
+  remarks      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([name, brand])
 }
 
 model Section {
