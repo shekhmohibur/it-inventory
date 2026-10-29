@@ -2,10 +2,12 @@
 
 import React from "react";
 import { PrintPageShell } from "@/components/print-layout/PrintPageShell";
+import { PrintAuditLogSection } from "@/components/print-layout/PrintAuditLogSection";
 
-export function PsuPrintLayout({ psus, org }) {
+export function PsuPrintLayout({ psus, org, logs = [] }) {
   return (
     <PrintPageShell org={org} title="POWER SUPPLY (PSU) SPECIFICATIONS DIRECTORY">
+      {/* 1. Main Printable Table (Renders on screen AND in print canvas) */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse border border-slate-300 text-xs">
           <thead>
@@ -36,6 +38,9 @@ export function PsuPrintLayout({ psus, org }) {
           </tbody>
         </table>
       </div>
+
+      {/* 2. Audit Log (Visible on screen, hidden on print canvas) */}
+      <PrintAuditLogSection logs={logs} />
     </PrintPageShell>
   );
 }

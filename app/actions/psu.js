@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { PrismaClient } from "@prisma/client";
 import { requirePermission } from "@/lib/authGuard";
-
+import { logChange } from "@/lib/auditLogger";
 const prisma = global.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
@@ -16,6 +16,16 @@ export async function createPsuAction(formData) {
     const name = formData.get("name")?.trim();
     const wattage = formData.get("wattage")?.trim();
     const remarks = formData.get("remarks")?.trim() || null;
+    const newPsu = await prisma.psuSpec.create({
+  data: { name, wattage, remarks },
+});
+
+await logChange({
+  entityType: "PSU",
+  entityId: newPsu.id,
+  action: "CREATE",
+  details: `Created PSU: ${name} (${wattage})`,
+});
 
     if (!name || !wattage) {
       return { error: "Name and Wattage are required." };
@@ -57,6 +67,17 @@ export async function updatePsuAction(id, formData) {
     const name = formData.get("name")?.trim();
     const wattage = formData.get("wattage")?.trim();
     const remarks = formData.get("remarks")?.trim() || null;
+    await prisma.psuSpec.update({
+  where: { id },
+  data: { name, wattage, remarks },
+});
+
+await logChange({
+  entityType: "PSU",
+  entityId: id,
+  action: "UPDATE",
+  details: `Updated PSU: ${name} (${wattage})`,
+});
 
     if (!name || !wattage) {
       return { error: "Name and Wattage are required." };
@@ -88,6 +109,14 @@ export async function deletePsuAction(id) {
     await prisma.psuSpec.delete({
       where: { id },
     });
+    await prisma.psuSpec.delete({ where: { id } });
+
+await logChange({
+  entityType: "PSU",
+  entityId: id,
+  action: "DELETE",
+  details: `Deleted PSU ID: ${id}`,
+});
 
     revalidatePath("/hardware-specs/psu");
     return { success: true };

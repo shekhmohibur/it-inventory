@@ -267,7 +267,20 @@ model Section {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
+// Audi log
 
+model AuditLog {
+  id         String   @id @default(cuid())
+  entityType String   // e.g. "PSU", "RAM", "Brand", "Model"
+  entityId   String   // The ID of the modified record
+  action     String   // "CREATE", "UPDATE", "DELETE"
+  userName   String   // Name or email of the user who made the change
+  details    String?  // Optional description or JSON string of changes
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
 // System License
 model SystemLicense {
   id                  String    @id @default("default-license")
@@ -280,6 +293,7 @@ model SystemLicense {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
