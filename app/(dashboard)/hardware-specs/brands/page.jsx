@@ -18,9 +18,11 @@ export const metadata = {
 const CATEGORIES = [
   "Computer",
   "Monitor",
+  "Laptop",
   "Printer",
   "Scanner",
   "Networking",
+  "Motherboards",
   "UPS",
   "Accessories",
 ];

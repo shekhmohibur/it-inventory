@@ -9,9 +9,11 @@ import { createBrandAction, updateBrandAction } from "@/app/actions/brand";
 const DEFAULT_CATEGORIES = [
   "Computer",
   "Monitor",
+  "Laptop",
   "Printer",
   "Scanner",
   "Networking",
+  "Motherboards",
   "UPS",
   "Accessories",
 ];

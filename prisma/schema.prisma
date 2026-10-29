@@ -152,14 +152,43 @@ model Department {
 // hardware specs
 
 model Brand {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   name      String
   category  String
+  remarks   String?
+  models    DeviceModel[]
+  motherboards Motherboard[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([name, category])
+}
+
+model DeviceModel {
+  id        String   @id @default(cuid())
+  name      String // e.g. "OptiPlex 7090", "ThinkPad T14", "LaserJet Pro M404dn"
+  category  String // e.g. "Computer", "Monitor", "Printer"
+  brandId   String
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  motherboards Motherboard[]
   remarks   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([name, category])
+  @@unique([name, brandId])
+}
+
+model Motherboard {
+  id        String      @id @default(cuid())
+  brandId   String
+  brand     Brand       @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  modelId   String
+  model     DeviceModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  remarks   String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([brandId, modelId])
 }
 
 model Ram {
