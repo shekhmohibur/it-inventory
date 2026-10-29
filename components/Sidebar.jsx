@@ -58,6 +58,9 @@ const NAV_ITEMS = [
       { title: "Brands", href: "/hardware-specs/brands" },
       { title: "Models", href: "/hardware-specs/models" },
       { title: "Motherboards", href: "/hardware-specs/motherboards" },
+      { title: "Storage", href: "/hardware-specs/storage" },
+      { title: "Graphics Cards", href: "/hardware-specs/graphics-card" },
+      { title: "Power Supplies", href: "/hardware-specs/psu" },
     ],
   },
   {

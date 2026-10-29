@@ -152,28 +152,28 @@ model Department {
 // hardware specs
 
 model Brand {
-  id        String        @id @default(cuid())
-  name      String
-  category  String
-  remarks   String?
-  models    DeviceModel[]
+  id           String        @id @default(cuid())
+  name         String
+  category     String
+  remarks      String?
+  models       DeviceModel[]
   motherboards Motherboard[]
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@unique([name, category])
 }
 
 model DeviceModel {
-  id        String   @id @default(cuid())
-  name      String // e.g. "OptiPlex 7090", "ThinkPad T14", "LaserJet Pro M404dn"
-  category  String // e.g. "Computer", "Monitor", "Printer"
-  brandId   String
-  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  id           String        @id @default(cuid())
+  name         String // e.g. "OptiPlex 7090", "ThinkPad T14", "LaserJet Pro M404dn"
+  category     String // e.g. "Computer", "Monitor", "Printer"
+  brandId      String
+  brand        Brand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
   motherboards Motherboard[]
-  remarks   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  remarks      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@unique([name, brandId])
 }
@@ -189,6 +189,45 @@ model Motherboard {
   updatedAt DateTime    @updatedAt
 
   @@unique([brandId, modelId])
+}
+
+model StorageSpec {
+  id         String   @id @default(cuid())
+  driveType  String // "SSD", "HDD", "NVMe SSD", "Hybrid (SSHD)"
+  capacity   String // e.g. "256 GB", "512 GB", "1 TB", "2 TB"
+  interface  String // e.g. "SATA III", "PCIe NVMe Gen 3", "PCIe NVMe Gen 4", "SAS"
+  formFactor String   @default("2.5 Inch") // "2.5 Inch", "3.5 Inch", "M.2 2280", "M.2 2230"
+  remarks    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([driveType, capacity, interface, formFactor])
+}
+
+model GraphicsCard {
+  id             String   @id @default(cuid())
+  chipsetBrand   String // "NVIDIA", "AMD", "Intel", "Apple"
+  series         String? // e.g., "GeForce RTX 40 Series", "Radeon RX 6000", "Intel Arc"
+  modelName      String // e.g., "RTX 3060", "RTX 4070 Ti", "RX 6600 XT", "Iris Xe"
+  memoryCapacity String // e.g., "8 GB", "12 GB", "16 GB", "Shared"
+  memoryType     String   @default("GDDR6") // "GDDR6X", "GDDR6", "GDDR5", "Shared DDR4", "Shared DDR5"
+  cardType       String   @default("Dedicated") // "Dedicated (Discrete)", "Integrated (iGPU)", "Low Profile"
+  remarks        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([chipsetBrand, modelName, memoryCapacity])
+}
+
+model PsuSpec {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Corsair CV550", "Gigabyte P650B", "Dell Optiplex 260W OEM"
+  wattage   String   // e.g., "550W", "650W", "260W"
+  remarks   String?  // Optional notes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, wattage])
 }
 
 model Ram {
